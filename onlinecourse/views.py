@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 # <HINT> Import any new Models here
-from .models import Course, Enrollment
+from .models import Course, Enrollment, Lesson
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
@@ -88,7 +88,14 @@ class CourseDetailView(generic.DetailView):
     model = Course
     template_name = 'onlinecourse/course_detail_bootstrap.html'
 
+    def get_queryset(self, id):
+        user = self.request.user
+        if user.is_authenticated:
+            lessons = Lesson.objects.get(course__id=int(id))
+            return lessons
+        else: return render(request, 'onlinecourse/user_login_bootstrap.html', context)
 
+    
 def enroll(request, course_id):
     course = get_object_or_404(Course, pk=course_id)
     user = request.user
